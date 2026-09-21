@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="jv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ekspedisi Budi Pekerti: Petualangan Subasita (10 Pos)</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jawa: {
+                            50: '#fefce8',
+                            100: '#fef9c3',
+                            200: '#fef08a',
+                            300: '#fde047',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#78350f',
+                            900: '#451a03',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fef8ee;
+        }
+        .bg-pattern {
+            background-color: #fef8ee;
+            background-image: radial-gradient(#b45309 0.75px, transparent 0.75px), radial-gradient(#b45309 0.75px, #fef8ee 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+    </style>
+</head>
+<body class="bg-pattern min-h-screen text-jawa-900 flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-jawa-900 text-amber-100 shadow-md py-4 px-6 border-b-4 border-jawa-600">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-jawa-600 p-2 rounded-lg text-2xl">🏛️</div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl tracking-wide text-amber-300">EKSPEDISI BUDI PEKERTI</h1>
+                    <p class="text-xs text-amber-200">Petualangan Subasita • 10 Pos Gladen SMP Kelas 7</p>
+                </div>
+            </div>
+            <button id="soundToggleBtn" onclick="toggleSound()" class="bg-jawa-800 hover:bg-jawa-700 px-3 py-1.5 rounded-lg border border-jawa-600 text-xs md:text-sm flex items-center gap-2 transition">
+                <span id="soundIcon">🔊</span> <span id="soundText" class="hidden sm:inline">Swara: On</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-3xl mx-auto w-full p-4 md:p-6 flex-grow flex flex-col justify-center">
+
+        <!-- 1. LAYAR PURWAKA (START SCREEN) -->
+        <div id="startScreen" class="bg-white/95 backdrop-blur rounded-2xl p-6 md:p-8 shadow-xl border-2 border-jawa-200 text-center">
+            <div class="inline-block bg-amber-100 p-4 rounded-full mb-4">
+                <svg class="w-16 h-16 text-jawa-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-jawa-900 mb-2">Sugeng Rawuh, Para Siswa!</h2>
+            <p class="text-jawa-800 text-sm md:text-base max-w-lg mx-auto mb-6">
+                Ayo miwiti petualangan liwat **10 Pos Subasita**! ing saben pos, pilih sikap lan adab sing paling santun supaya entuk **10 Lintang Santun** lan nilai sampurna.
+            </p>
+            
+            <div class="max-w-xs mx-auto mb-6">
+                <label for="playerNameInput" class="block text-left text-xs font-bold text-jawa-800 mb-1 uppercase tracking-wider">Jeneng Siswa / Asrama:</label>
+                <input type="text" id="playerNameInput" placeholder="Isine jenengmu ing kene..." class="w-full px-4 py-2.5 rounded-xl border-2 border-jawa-300 focus:border-jawa-600 focus:outline-none text-center font-bold text-jawa-900">
+            </div>
+
+            <button onclick="startGame()" class="w-full sm:w-auto px-8 py-3.5 bg-jawa-700 hover:bg-jawa-800 text-amber-100 font-bold rounded-xl shadow-lg hover:shadow-xl transition transform active:scale-95 text-lg">
+                🚀 Miwiti Ekspedisi (10 Pos)
+            </button>
+        </div>
+
+        <!-- 2. LAYAR GAMEPLAY -->
+        <div id="gameScreen" class="hidden flex-col gap-5">
+            
+            <!-- Peta Progress / Indikator Pos -->
+            <div class="bg-white/90 backdrop-blur p-4 rounded-xl shadow-md border border-jawa-200">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="playerBadge" class="font-bold text-xs md:text-sm text-jawa-800">Siswa: -</span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs md:text-sm font-bold bg-amber-100 text-jawa-800 px-3 py-1 rounded-full border border-amber-300">
+                            ⭐ <span id="starCount">0</span> / 10 Lintang
+                        </span>
+                        <span class="text-xs md:text-sm font-bold bg-jawa-800 text-amber-200 px-3 py-1 rounded-full">
+                            Poin: <span id="scoreDisplay">0</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar Nodes (10 Pos) -->
+                <div class="relative flex justify-between items-center mt-4 px-1">
+                    <div class="absolute top-1/2 left-0 right-0 h-1.5 bg-jawa-100 -translate-y-1/2 z-0 rounded-full"></div>
+                    <div id="progressBarFill" class="absolute top-1/2 left-0 h-1.5 bg-jawa-600 -translate-y-1/2 z-0 rounded-full transition-all duration-500" style="width: 0%;"></div>
+
+                    <div id="posNode-0" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shadow-md transition-all">1</div>
+                    <div id="posNode-1" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs transition-all">2</div>
+                    <div id="posNode-2" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs transition-all">3</div>
+                    <div id="posNode-3" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs transition-all">4</div>
+                    <div id="posNode-4" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs transition-all">5</div>
+                    <div id="posNode-5" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs transition-all">6</div>
+                    <div id="posNode-6" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs transition-all">7</div>
+                    <div id="posNode-7" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs transition-all">8</div>
+                    <div id="posNode-8" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs transition-all">9</div>
+                    <div id="posNode-9" class="relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs transition-all">10</div>
+                </div>
+            </div>
+
+            <!-- Card Pos lan Pitakon -->
+            <div class="bg-white rounded-2xl p-5 md:p-7 shadow-xl border-2 border-jawa-200 flex flex-col gap-4">
+                
+                <div class="border-b pb-3 border-amber-100 flex justify-between items-center">
+                    <div>
+                        <span id="posCategory" class="text-xs font-bold text-jawa-600 uppercase tracking-wider">POS 1</span>
+                        <h3 id="posTitle" class="text-lg md:text-xl font-bold text-jawa-900">Irah-irahan Pos</h3>
+                    </div>
+                    <span id="posBadgeIcon" class="text-2xl">🏡</span>
+                </div>
+
+                <!-- Ilustrasi Visual (SVG) -->
+                <div id="illustrationBox" class="w-full h-44 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-center overflow-hidden relative">
+                </div>
+
+                <!-- Kahanan (Skenario) -->
+                <div class="bg-amber-50/80 p-4 rounded-xl border-l-4 border-jawa-600">
+                    <p id="scenarioText" class="text-sm md:text-base text-jawa-900 font-medium leading-relaxed">
+                        Katrangan kahanan/situasi ing pos...
+                    </p>
+                </div>
+
+                <!-- Pilihan Wangsulan -->
+                <div id="optionsContainer" class="flex flex-col gap-2.5 mt-1">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. MODAL UMPAN BALIK (FEEDBACK) -->
+        <div id="feedbackModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-2 border-jawa-300 text-center transform transition-all">
+                <div id="feedbackIcon" class="text-5xl mb-3">✨</div>
+                <h3 id="feedbackStatus" class="text-xl font-extrabold mb-2 text-jawa-900">Pilihan Tepat!</h3>
+                <p id="feedbackText" class="text-sm text-jawa-800 leading-relaxed mb-6 bg-amber-50 p-3.5 rounded-xl border border-amber-200">
+                    Katrangan umpan balik edukatif...
+                </p>
+                <button id="nextPosBtn" onclick="nextQuestion()" class="w-full py-3 bg-jawa-700 hover:bg-jawa-800 text-amber-100 font-bold rounded-xl shadow transition">
+                    Lanjut menyang Pos Sabanjure ➔
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. LAYAR HASIL AKHIR -->
+        <div id="resultScreen" class="hidden bg-white rounded-2xl p-6 md:p-8 shadow-xl border-2 border-jawa-300 text-center">
+            <div class="inline-block bg-amber-100 p-4 rounded-full mb-3 text-4xl">
+                🏆
+            </div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-jawa-900 mb-1">Ekspedisi Rampung!</h2>
+            <p class="text-xs md:text-sm text-jawa-700 mb-6">Asil Capaian Budi Pekerti lan Subasita Siswa</p>
+
+            <div class="bg-amber-50 rounded-xl p-5 border-2 border-amber-300 mb-6 max-w-md mx-auto relative overflow-hidden">
+                <div class="text-xs uppercase tracking-widest font-bold text-jawa-600 mb-1">ASIL AKHIR</div>
+                <h3 id="resultPlayerName" class="text-xl font-bold text-jawa-900 mb-3">-</h3>
+                
+                <div class="flex justify-center items-center gap-6 my-3 py-3 border-y border-amber-200">
+                    <div>
+                        <div class="text-xs text-jawa-700">Gunggung Poin</div>
+                        <div id="finalScore" class="text-2xl font-extrabold text-jawa-800">0</div>
+                    </div>
+                    <div class="h-8 w-px bg-amber-300"></div>
+                    <div>
+                        <div class="text-xs text-jawa-700">Lintang Santun</div>
+                        <div id="finalStars" class="text-2xl font-extrabold text-amber-600">⭐ 0/10</div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <span class="text-xs text-jawa-700 block mb-1">Predikat Subasita:</span>
+                    <span id="finalTitle" class="inline-block bg-jawa-800 text-amber-200 text-xs md:text-sm font-bold px-4 py-1.5 rounded-full shadow">
+                        Siswa Berbudi Pekerti Santun
+                    </span>
+                </div>
+            </div>
+
+            <div class="bg-jawa-900 text-amber-100 p-4 rounded-xl mb-6 max-w-md mx-auto text-left border-l-4 border-amber-400">
+                <div class="text-xs font-bold text-amber-300 uppercase mb-1">💡 Pitutur Luhur:</div>
+                <p id="reflectionText" class="text-xs md:text-sm leading-relaxed italic text-amber-100">
+                    "Ajining diri dumunung ing lathi, ajining raga dumunung ing busana, ajining bawana dumunung ing subasita." 
+                    (Drajating manungsa iku gumantung saka tutur kata sing santun, sandhangan sing rapi, lan sikap sopan santun ing tengahing masyarakat).
+                </p>
+            </div>
+
+            <button onclick="restartGame()" class="px-8 py-3 bg-jawa-700 hover:bg-jawa-800 text-amber-100 font-bold rounded-xl shadow-lg transition">
+                🔄 Gladen Maneh (Ulangi Game)
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-jawa-700 border-t border-amber-200/60 bg-white/50">
+        Gim Edukasi Basa Jawa & Budi Pekerti • SMP Kelas 7 • Subasita lan Sopan Santun (10 Pos)
+    </footer>
+
+    <!-- Logic JavaScript -->
+    <script>
+        let playerName = "";
+        let currentPos = 0;
+        let score = 0;
+        let stars = 0;
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        // DATA 10 SOAL SUBASITA
+        const posData = [
+            {
+                pos: 1,
+                title: "Pamitan ing Omah",
+                category: "POS 1: LINGKUNGAN OMAH",
+                icon: "🏠",
+                scenario: "Nalika arep berangkat sekolah, Budi ndeleng Bapak lan Ibu lagi ing teras omah. Sikap subasita Budi kang paling trep yaiku...",
+                options: [
+                    {
+                        text: "Nyedhaki wong tuwa, salim/ngambung asta, lan matur nyuwun pamit badhe budhal sekolah.",
+                        isCorrect: true,
+                        feedback: "Leres banget! Salim lan ngambung astane wong tuwa iku wujud pamitan kang utama, nyuwun pangestu supaya slamet lan lancar anggone golek ilmu."
+                    },
+                    {
+                        text: "Mung bengok-bengok saka kadohan: 'Pak, Bu, Budi mangkat sekolah sik ya!'",
+                        isCorrect: false,
+                        feedback: "Kurang trep. Bengok-bengok saka kadohan iku kurang ngajeni wong tuwa. Becike nyedhak lan salim."
+                    },
+                    {
+                        text: "Mlayu metu saka omah tanpa pamitan amarga kesusu wedi kawanen.",
+                        isCorrect: false,
+                        feedback: "Mboten sopan. Sanadyan kesusu, tetep kudu pamitan marang wong tuwa minangka tandha urmat lan nyuwun doa restu."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#fef3c7"/>
+                        <path d="M50 120 L50 70 L90 40 L130 70 L130 120 Z" fill="#b45309"/>
+                        <path d="M40 70 L90 30 L140 70 Z" fill="#78350f"/>
+                        <circle cx="220" cy="85" r="14" fill="#d97706"/>
+                        <rect x="210" y="100" width="20" height="30" rx="5" fill="#451a03"/>
+                        <circle cx="260" cy="95" r="12" fill="#f59e0b"/>
+                        <path d="M250 110 L270 110 L265 140 L255 140 Z" fill="#b45309"/>
+                        <path d="M255 105 L230 95" stroke="#451a03" stroke-width="4" stroke-linecap="round"/>
+                        <text x="180" y="35" fill="#78350f" font-size="12" font-weight="bold">Pos 1: Pamitan & Salim</text>
+                    </svg>
+                `
+            },
+            {
+                pos: 2,
+                title: "Lewat Ngarep Wong Tuwa",
+                category: "POS 2: DALAN / MASYARAKAT",
+                icon: "🚶‍♂️",
+                scenario: "Nalika mlaku lewat ing ngarepe wong tuwa sing lagi pinarak ing teras, subasita sing kudu ditindakake Budi yaiku...",
+                options: [
+                    {
+                        text: "Mlakune rada mbungkuk, tangan tengen diulurake mandhap, lan ngucap 'nuwun sewu'.",
+                        isCorrect: true,
+                        feedback: "Joss! Sikap mbungkuk lan ngucap 'nuwun sewu' iku wujud subasita utama wong Jawa nalika lewat ing ngarepe wong sing luwih tuwa."
+                    },
+                    {
+                        text: "Mlayu sak banter-bantere supaya cepet lewat lan ora ngganggu.",
+                        isCorrect: false,
+                        feedback: "Kurang trep. Mlayu ing ngarepe wong tuwa bisa dianggep ora duwe tata krama lan kurang ngajeni."
+                    },
+                    {
+                        text: "Mlaku tegak biasa karo dolanan HP tanpa ndeleng sakiwa tengene.",
+                        isCorrect: false,
+                        feedback: "Kurang sopan. Cuek lan main HP nalika lewat ing ngarep wong tuwa iku tumindak sing kurang santun."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#ecfdf5"/>
+                        <path d="M0 130 L400 130" stroke="#059669" stroke-width="8"/>
+                        <rect x="80" y="90" width="50" height="30" fill="#047857" rx="4"/>
+                        <circle cx="95" cy="75" r="12" fill="#d97706"/>
+                        <circle cx="115" cy="75" r="12" fill="#b45309"/>
+                        <g transform="translate(240, 60)">
+                            <circle cx="20" cy="15" r="12" fill="#f59e0b"/>
+                            <path d="M20 28 L5 55 L25 70" stroke="#78350f" stroke-width="8" stroke-linecap="round"/>
+                            <line x1="15" y1="35" x2="-10" y2="55" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
+                        </g>
+                        <text x="170" y="40" fill="#047857" font-size="12" font-weight="bold">Pos 2: "Nuwun sewu..." (Mbungkuk)</text>
+                    </svg>
+                `
+            },
+            {
+                pos: 3,
+                title: "Menehi lan Nampa Barang",
+                category: "POS 3: INTERAKSI KANCA",
+                icon: "🤝",
+                scenario: "Nalika Budi menehake utawa nampa barang saka kanca utawa wong tuwa, becike nggunakake...",
+                options: [
+                    {
+                        text: "Tangan tengen kanthi grapyak lan mesem.",
+                        isCorrect: true,
+                        feedback: "Pinter! Menehi utawa nampa barang saka wong liya wajib nggunakake tangan tengen minangka wujud kesantunan."
+                    },
+                    {
+                        text: "Tangan kiwa amarga tangan tengen lagi nyekel tas.",
+                        isCorrect: false,
+                        feedback: "Kurang pas. Yen tangan tengen repot, becike nyuwun pangapura dhisik ('ngapunten nggo tangan kiwa')."
+                    },
+                    {
+                        text: "Tangan loro-lorone karo diuncalake menyang mejane.",
+                        isCorrect: false,
+                        feedback: "Salah banget! Nguncalake barang marang wong liya iku tumindak kang kasar lan ora duwe tata krama."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#eff6ff"/>
+                        <rect x="40" y="30" width="320" height="15" fill="#1d4ed8"/>
+                        <path d="M100 110 L180 90" stroke="#d97706" stroke-width="12" stroke-linecap="round"/>
+                        <rect x="175" y="82" width="25" height="6" fill="#dc2626" transform="rotate(-12, 175, 82)"/>
+                        <path d="M300 110 L210 90" stroke="#f59e0b" stroke-width="12" stroke-linecap="round"/>
+                        <text x="110" y="45" fill="#1e40af" font-size="12" font-weight="bold">Pos 3: Etika Tangan Tengen</text>
+                    </svg>
+                `
+            },
+            {
+                pos: 4,
+                title: "Ketemu Guru ing Gapura",
+                category: "POS 4: GAPURA SEKOLAH",
+                icon: "🏫",
+                scenario: "Nalika ketemu Pak Guru sing lagi piket ing gapura sekolah, sikap santun sing kudu ditindakake Budi yaiku...",
+                options: [
+                    {
+                        text: "Mandheg sedhela, mesem, ngucap salam, lan salim marang Pak Guru.",
+                        isCorrect: true,
+                        feedback: "Jos tenan! Aruh-aruh lan salam marang guru iku wujud rasa urmat marang guru sing wis mulang lan nuntun kita."
+                    },
+                    {
+                        text: "Ethok-ethok ora weruh banjur mlayu mlebu kelas.",
+                        isCorrect: false,
+                        feedback: "Kurang becik. Ethok-ethok ora weruh guru iku nuduhake sikap sing cuek lan kurang ngajeni."
+                    },
+                    {
+                        text: "Mung manthuk sithik karo tetep mlaku terus tanpa omongan.",
+                        isCorrect: false,
+                        feedback: "Mboten santun. Luwih apik yen mandheg sedhela, aruh-aruh, lan salam."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#fff7ed"/>
+                        <rect x="80" y="20" width="20" height="120" fill="#b45309"/>
+                        <rect x="300" y="20" width="20" height="120" fill="#b45309"/>
+                        <rect x="70" y="20" width="260" height="15" fill="#78350f"/>
+                        <circle cx="150" cy="75" r="12" fill="#0284c7"/>
+                        <rect x="142" y="90" width="16" height="35" fill="#1e3a8a"/>
+                        <circle cx="230" cy="80" r="11" fill="#f59e0b"/>
+                        <rect x="223" y="93" width="14" height="32" fill="#b45309"/>
+                        <text x="130" y="50" fill="#78350f" font-size="12" font-weight="bold">Pos 4: Sapa & Salam marang Guru</text>
+                    </svg>
+                `
+            },
+            {
+                pos: 5,
+                title: "Tata Krama ing Njero Kelas",
+                category: "POS 5: RUANG KELAS",
+                icon: "📖",
+                scenario: "Nalika Bu Guru lagi nerangake materi ing ngarep kelas, sikap murid kang santun yaiku...",
+                options: [
+                    {
+                        text: "Lungguh anteng, ngrungokake kanthi temenan, lan ora ngganggu kanca liyane.",
+                        isCorrect: true,
+                        feedback: "Sampurna! Ngrungokake guru sing lagi nerangake iku adab utama nalika sinau lan wujud ngajeni ilmu."
+                    },
+                    {
+                        text: "Umak-umik lan omongan karo kanca sak bangku amarga rumangsa wis paham.",
+                        isCorrect: false,
+                        feedback: "Kurang sopan. Ngobrol nalika guru nerangake iku bisa ngganggu konsentrasi Bu Guru lan kanca liyane."
+                    },
+                    {
+                        text: "Corat-coret meja utawa dolanan barang liyane ing ngisor meja.",
+                        isCorrect: false,
+                        feedback: "Mboten trep. Dolanan dhewe nalika pelajaran iku tandha ora ngajeni guru sing lagi mulang."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#fef2f2"/>
+                        <rect x="120" y="25" width="160" height="60" fill="#065f46" rx="4"/>
+                        <text x="135" y="55" fill="#ecfdf5" font-size="11">Pos 5: Subasita ing Kelas</text>
+                        <rect x="150" y="115" width="100" height="15" fill="#78350f"/>
+                        <circle cx="200" cy="100" r="11" fill="#f59e0b"/>
+                        <rect x="192" y="111" width="16" height="20" fill="#b45309"/>
+                    </svg>
+                `
+            },
+            {
+                pos: 6,
+                title: "Mlebu Ruang Guru",
+                category: "POS 6: RUANG GURU",
+                icon: "🚪",
+                scenario: "Nalika Budi arep mlebu menyang ruang guru kanggo ngumpulake tugas, adab kang paling bener yaiku...",
+                options: [
+                    {
+                        text: "Ndhodhog lawang, ngucap salam, lan nyuwun izin mlebu marang guru sing ana ing njero.",
+                        isCorrect: true,
+                        feedback: "Pinter banget! Ndhodhog lawang lan ngucap salam iku adab sopan nalika arep mlebu ing ruwangan utawa omahe wong liya."
+                    },
+                    {
+                        text: "Langsung mlebu wae tanpa uluk salam amarga lawange wis mbukak.",
+                        isCorrect: false,
+                        feedback: "Kurang sopan. Sanadyan lawang mbukak, tetep kudu uluk salam lan nyuwun izin dhisik."
+                    },
+                    {
+                        text: "Mlebu karo nyeluk jenenge guru saka njaba lawang kanthi suara banter.",
+                        isCorrect: false,
+                        feedback: "Mboten santun. Bengok-bengok nyeluk guru saka njaba iku tumindak kang kurang duwe adab."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#f0fdf4"/>
+                        <rect x="150" y="20" width="100" height="120" fill="#b45309" rx="4"/>
+                        <circle cx="170" cy="80" r="5" fill="#fef08a"/>
+                        <text x="120" y="150" fill="#15803d" font-size="12" font-weight="bold">Pos 6: Thuk-thuk Lawang & Salam</text>
+                    </svg>
+                `
+            },
+            {
+                pos: 7,
+                title: "Dijak Guneman Wong Tuwa",
+                category: "POS 7: ETIKA GUNEMAN",
+                icon: "🗣️",
+                scenario: "Nalika Budi dijak guneman (ngobrol) karo wong kang luwih tuwa, sikap tubuh kang sopan yaiku...",
+                options: [
+                    {
+                        text: "Ndeleng pasuryane (wajahe) kanthi grapyak lan ngrungokake nganti rampung.",
+                        isCorrect: true,
+                        feedback: "Leres! Nggatekake lan ndeleng pasuryane wong sing dijak guneman nuduhake sikap ngajeni lan tulus."
+                    },
+                    {
+                        text: "Ndeleng layar HP lan ora nggatekake apa sing didhawuhake.",
+                        isCorrect: false,
+                        feedback: "Salah banget. Main HP nalika dijak guneman wong liya iku tumindak kang sanget ora sopan."
+                    },
+                    {
+                        text: "Delang-deleng ngiwa nengen karo ngulet amarga bosen.",
+                        isCorrect: false,
+                        feedback: "Kurang santun. Ngulet lan acuh tak acuh nuduhake yen kita ora ngrungokake kanti becik."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#faf5ff"/>
+                        <circle cx="150" cy="70" r="16" fill="#7e22ce"/>
+                        <circle cx="250" cy="70" r="14" fill="#f59e0b"/>
+                        <path d="M170 65 L230 65" stroke="#a855f7" stroke-width="3" stroke-dasharray="4"/>
+                        <text x="130" y="130" fill="#6b21a8" font-size="12" font-weight="bold">Pos 7: Nggatekake Wong Guneman</text>
+                    </svg>
+                `
+            },
+            {
+                pos: 8,
+                title: "Adab Mangan lan Ngombe",
+                category: "POS 8: ADAB MANGAN",
+                icon: "🍲",
+                scenario: "Subasita utawa adab kang bener nalika mangan lan ngombe ing lingkungan sekolah utawa omah yaiku...",
+                options: [
+                    {
+                        text: "Lungguh kang sopan, ora guneman nalika tutuge kebak panganan, lan nganggo tangan tengen.",
+                        isCorrect: true,
+                        feedback: "Joss! Mangan karo lungguh lan ora guneman nalika kecap-kecap iku adab mangan kang becik lan sehat."
+                    },
+                    {
+                        text: "Mangan karo mlaku-mlaku ing koridor sekolah lan ngobrol banter.",
+                        isCorrect: false,
+                        feedback: "Kurang trep. Mangan karo mlaku-mlaku iku salah siji tumindak sing kurang santun miturut tata krama."
+                    },
+                    {
+                        text: "Mangan nggunakake tangan kiwa amarga tangan tengene kotor.",
+                        isCorrect: false,
+                        feedback: "Mboten pas. Yen tangan kotor, luwih dhisik kudu wijik (wisuh/cuci tangan) nggunakake sabun."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#fffbebe6"/>
+                        <rect x="130" y="100" width="140" height="15" fill="#b45309"/>
+                        <circle cx="200" cy="90" r="10" fill="#dc2626"/>
+                        <text x="130" y="50" fill="#b45309" font-size="12" font-weight="bold">Pos 8: Mangan Lungguh & Tangan Tengen</text>
+                    </svg>
+                `
+            },
+            {
+                pos: 9,
+                title: "Ditulungi Kancane",
+                category: "POS 9: SRAWUNG KANCA",
+                icon: "💖",
+                scenario: "Budi ditulungi kancane nalika tase tiba ing dalan. Tumindak Budi sawise ditulungi yaiku...",
+                options: [
+                    {
+                        text: "Ngucapake matur nuwun kanthi apik, tulus, lan mesem.",
+                        isCorrect: true,
+                        feedback: "Pinter! Ngucapake matur nuwun iku wujud ngapresiasi lan ngajeni pitulungane wong liya marang kita."
+                    },
+                    {
+                        text: "Langsung lunga ngono wae tanpa ngomong apa-apa.",
+                        isCorrect: false,
+                        feedback: "Kurang sopan. Lunga tanpa ngucap matur nuwun iku dianggep ora duwe rasa panggolek matur nuwun."
+                    },
+                    {
+                        text: "Mung manthuk sithik karo ngguyu-ngguyu dhewe.",
+                        isCorrect: false,
+                        feedback: "Mboten trep. Luwih apik lan santun yen ngucapake 'matur nuwun ya' kanthi cetha."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#fdf2f8"/>
+                        <path d="M200 80 C200 50, 160 50, 160 80 C160 100, 200 120, 200 130 C200 120, 240 100, 240 80 C240 50, 200 50, 200 80 Z" fill="#ec4899"/>
+                        <text x="135" y="40" fill="#be185d" font-size="12" font-weight="bold">Pos 9: Ngucap "Matur Nuwun"</text>
+                    </svg>
+                `
+            },
+            {
+                pos: 10,
+                title: "Tanpa Sengaja Nabrak Kanca",
+                category: "POS 10: TANGGUNG JAWAB",
+                icon: "🤝",
+                scenario: "Nalika tanpa sengaja nabrak kancane nganti bukune tiba kabeh, tumindak kang kudu ditindakake Budi yaiku...",
+                options: [
+                    {
+                        text: "Nyuwun pangapura kanthi tulus lan langsung mbantu njupukake buku-bukune sing ceblok.",
+                        isCorrect: true,
+                        feedback: "Sampurna! Nyuwun pangapura lan tanggung jawab nulungi iku nuduhake watak satriya lan berbudi luhur."
+                    },
+                    {
+                        text: "Nyalahke kancane amarga mlaku ora ndeleng ngarep.",
+                        isCorrect: false,
+                        feedback: "Salah banget. Nyalahke wong liya amarga kesalahan kita iku tumindak sing ora jujur lan egois."
+                    },
+                    {
+                        text: "Mlayu amarga wedi diseneni utawa didathengake guru piket.",
+                        isCorrect: false,
+                        feedback: "Kurang becik. Mlayu saka kesalahan nuduhake sikap sing wedi lan ora tanggung jawab."
+                    }
+                ],
+                svgVisual: `
+                    <svg class="w-full h-full" viewBox="0 0 400 160" fill="none">
+                        <rect width="400" height="160" fill="#fefce8"/>
+                        <rect x="180" y="80" width="40" height="30" fill="#3b82f6" rx="2"/>
+                        <rect x="190" y="90" width="40" height="30" fill="#10b981" rx="2"/>
+                        <text x="110" y="45" fill="#854d0e" font-size="12" font-weight="bold">Pos 10: Nyuwun Pangapura lan Mbantu</text>
+                    </svg>
+                `
+            }
+        ];
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            try {
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'win') {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const oscW = audioCtx.createOscillator();
+                        const gainW = audioCtx.createGain();
+                        oscW.type = 'triangle';
+                        oscW.connect(gainW);
+                        gainW.connect(audioCtx.destination);
+                        oscW.frequency.setValueAtTime(freq, now + idx * 0.12);
+                        gainW.gain.setValueAtTime(0.2, now + idx * 0.12);
+                        gainW.gain.linearRampToValueAtTime(0, now + idx * 0.12 + 0.25);
+                        oscW.start(now + idx * 0.12);
+                        oscW.stop(now + idx * 0.12 + 0.25);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').innerText = soundEnabled ? '🔊' : '🔇';
+            document.getElementById('soundText').innerText = soundEnabled ? 'Swara: On' : 'Swara: Off';
+            if (soundEnabled) playSound('click');
+        }
+
+        function startGame() {
+            const inputVal = document.getElementById('playerNameInput').value.trim();
+            playerName = inputVal !== "" ? inputVal : "Siswa Kelas 7";
+            
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('gameScreen').classList.add('flex');
+            document.getElementById('playerBadge').innerText = "Siswa: " + playerName;
+
+            currentPos = 0;
+            score = 0;
+            stars = 0;
+
+            playSound('click');
+            loadPos(currentPos);
+        }
+
+        function loadPos(index) {
+            const data = posData[index];
+
+            document.getElementById('scoreDisplay').innerText = score;
+            document.getElementById('starCount').innerText = stars;
+
+            const fillPercentage = (index / (posData.length - 1)) * 100;
+            document.getElementById('progressBarFill').style.width = fillPercentage + "%";
+
+            for (let i = 0; i < posData.length; i++) {
+                const node = document.getElementById(`posNode-${i}`);
+                if (i < index) {
+                    node.className = "relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow";
+                    node.innerText = "✓";
+                } else if (i === index) {
+                    node.className = "relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shadow-lg ring-4 ring-amber-200 animate-pulse";
+                    node.innerText = i + 1;
+                } else {
+                    node.className = "relative z-10 w-7 h-7 md:w-8 md:h-8 rounded-full bg-jawa-200 text-jawa-800 flex items-center justify-center font-bold text-xs";
+                    node.innerText = i + 1;
+                }
+            }
+
+            document.getElementById('posCategory').innerText = data.category;
+            document.getElementById('posTitle').innerText = data.title;
+            document.getElementById('posBadgeIcon').innerText = data.icon;
+            document.getElementById('scenarioText').innerText = data.scenario;
+            document.getElementById('illustrationBox').innerHTML = data.svgVisual;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = "";
+
+            data.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3.5 md:p-4 rounded-xl border-2 border-jawa-200 hover:border-jawa-600 hover:bg-amber-50 transition flex items-start gap-3 bg-white text-jawa-900 font-medium text-xs md:text-sm shadow-sm active:scale-[0.99]";
+                btn.onclick = () => selectOption(opt);
+
+                const optionLetter = String.fromCharCode(65 + idx);
+                btn.innerHTML = `
+                    <span class="bg-jawa-100 text-jawa-800 font-bold px-2.5 py-1 rounded-lg text-xs border border-jawa-300 shrink-0">${optionLetter}</span>
+                    <span class="leading-relaxed">${opt.text}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(option) {
+            const modal = document.getElementById('feedbackModal');
+            const statusEl = document.getElementById('feedbackStatus');
+            const textEl = document.getElementById('feedbackText');
+            const iconEl = document.getElementById('feedbackIcon');
+
+            if (option.isCorrect) {
+                playSound('correct');
+                score += 10; // 10 soal x 10 poin = 100 poin total
+                stars += 1;
+                iconEl.innerText = "⭐";
+                statusEl.innerText = "Pinter Banget! (+10 Poin)";
+                statusEl.className = "text-xl font-extrabold mb-2 text-emerald-700";
+                textEl.innerText = option.feedback;
+            } else {
+                playSound('wrong');
+                iconEl.innerText = "💡";
+                statusEl.innerText = "Kurang Trep, Ayo Gladen Maneh!";
+                statusEl.className = "text-xl font-extrabold mb-2 text-amber-700";
+                textEl.innerText = option.feedback;
+            }
+
+            document.getElementById('scoreDisplay').innerText = score;
+            document.getElementById('starCount').innerText = stars;
+
+            modal.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            document.getElementById('feedbackModal').classList.add('hidden');
+
+            currentPos++;
+            if (currentPos < posData.length) {
+                loadPos(currentPos);
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            playSound('win');
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('flex');
+            document.getElementById('resultScreen').classList.remove('hidden');
+
+            document.getElementById('resultPlayerName').innerText = playerName;
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('finalStars').innerText = `⭐ ${stars}/10`;
+
+            const titleEl = document.getElementById('finalTitle');
+            if (score === 100) {
+                titleEl.innerText = "🌟 Siswa Anggun ing Budi Pekerti & Tuladhan Santun";
+            } else if (score >= 70) {
+                titleEl.innerText = "👍 Siswa Santun & Berbudi Luhur";
+            } else {
+                titleEl.innerText = "🌱 Siswa Srawung (Kudu Luwih Gladen Subasita)";
+            }
+        }
+
+        function restartGame() {
+            playSound('click');
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            document.getElementById('playerNameInput').value = "";
+        }
+    </script>
+</body>
+</html>
